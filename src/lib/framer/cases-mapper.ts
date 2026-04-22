@@ -8,6 +8,7 @@ export const FRAMER_CASE_FIELD_NAMES = {
   localizacao:       'Localização',
   setorEmpresa:      'Setor Empresa',
   tamanhoEmpresa:    'Tamanho Empresa',
+  pequenaDescricao:  'Pequena Descrição',
   desafioEnfrentado: 'Desafio Enfrentado',
   resultado:         'Resultado',
   content:           'Content',
@@ -78,6 +79,7 @@ export function buildFramerItemFromCase(
   setString('localizacao',       caseRow.localizacao)
   setString('setorEmpresa',      caseRow.setor_empresa)
   setString('tamanhoEmpresa',    caseRow.tamanho_empresa)
+  setString('pequenaDescricao',  caseRow.pequena_descricao ?? '')
   setString('urlVideoYoutube',   caseRow.youtube_url)
 
   setString('desafioEnfrentado',    caseRow.desafio ?? '')

@@ -8,6 +8,7 @@ export async function createCase(data: {
   setor_empresa: string
   tamanho_empresa: string
   youtube_url: string
+  pequena_descricao: string
 }): Promise<CaseRow> {
   const supabase = createServerClient()
 

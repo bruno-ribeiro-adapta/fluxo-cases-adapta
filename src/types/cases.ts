@@ -21,6 +21,7 @@ export interface CaseRow {
   setor_empresa: string
   tamanho_empresa: string
   youtube_url: string
+  pequena_descricao: string | null
 
   // Arquivos
   logo_url: string | null
@@ -52,6 +53,7 @@ export interface CaseFormPayload {
   setor_empresa: string
   tamanho_empresa: string
   youtube_url: string
+  pequena_descricao: string
 }
 
 // O que o n8n devolve no callback do case

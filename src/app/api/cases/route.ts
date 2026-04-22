@@ -9,6 +9,7 @@ const CaseSchema = z.object({
   localizacao: z.string().min(1, 'Localização é obrigatória'),
   setor_empresa: z.string().min(1, 'Setor é obrigatório'),
   tamanho_empresa: z.string().min(1, 'Tamanho da empresa é obrigatório'),
+  pequena_descricao: z.string().min(1, 'Pequena descrição é obrigatória'),
   youtube_url: z
     .string()
     .url('Informe uma URL válida')
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
           localizacao: newCase.localizacao,
           setor_empresa: newCase.setor_empresa,
           tamanho_empresa: newCase.tamanho_empresa,
+          pequena_descricao: newCase.pequena_descricao,
           callback_url: callbackUrl,
         }),
       })

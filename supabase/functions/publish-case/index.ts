@@ -10,6 +10,7 @@ const FIELD_NAMES = {
   localizacao:       'Localização',
   setorEmpresa:      'Setor Empresa',
   tamanhoEmpresa:    'Tamanho Empresa',
+  pequenaDescricao:  'Pequena Descrição',
   desafioEnfrentado: 'Desafio Enfrentado',
   resultado:         'Resultado',
   content:           'Content',
@@ -108,6 +109,7 @@ Deno.serve(async (req) => {
     setString(FIELD_NAMES.localizacao,       caseRow.localizacao)
     setString(FIELD_NAMES.setorEmpresa,      caseRow.setor_empresa)
     setString(FIELD_NAMES.tamanhoEmpresa,    caseRow.tamanho_empresa)
+    setString(FIELD_NAMES.pequenaDescricao,  caseRow.pequena_descricao ?? '')
     setString(FIELD_NAMES.urlVideoYoutube,   caseRow.youtube_url)
     setString(FIELD_NAMES.desafioEnfrentado, caseRow.desafio ?? '')
     setFormattedText(FIELD_NAMES.resultado,  toHtml(caseRow.resultado ?? ''))

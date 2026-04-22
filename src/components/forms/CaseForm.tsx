@@ -5,28 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Input from '@/components/ui/Input'
-import Select from '@/components/ui/Select'
-
-const SETOR_OPTIONS = [
-  { value: 'Saúde e Medicina', label: 'Saúde e Medicina' },
-  { value: 'Contabilidade e Finanças', label: 'Contabilidade e Finanças' },
-  { value: 'Recursos Humanos', label: 'Recursos Humanos' },
-  { value: 'Jurídico', label: 'Jurídico' },
-  { value: 'Empreendedorismo', label: 'Empreendedorismo' },
-  { value: 'E-commerce e Varejo', label: 'E-commerce e Varejo' },
-  { value: 'Tecnologia', label: 'Tecnologia' },
-  { value: 'Educação', label: 'Educação' },
-  { value: 'Indústria', label: 'Indústria' },
-  { value: 'Outro', label: 'Outro' },
-]
-
-const TAMANHO_OPTIONS = [
-  { value: '1-10 funcionários', label: '1–10 funcionários' },
-  { value: '11-50 funcionários', label: '11–50 funcionários' },
-  { value: '51-200 funcionários', label: '51–200 funcionários' },
-  { value: '201-1000 funcionários', label: '201–1000 funcionários' },
-  { value: '+1000 funcionários', label: '+1000 funcionários' },
-]
 
 const schema = z.object({
   titulo_case: z.string().min(1, 'Título é obrigatório'),
@@ -34,6 +12,7 @@ const schema = z.object({
   localizacao: z.string().min(1, 'Localização é obrigatória'),
   setor_empresa: z.string().min(1, 'Setor é obrigatório'),
   tamanho_empresa: z.string().min(1, 'Tamanho é obrigatório'),
+  pequena_descricao: z.string().min(1, 'Pequena descrição é obrigatória'),
   youtube_url: z
     .string()
     .min(1, 'URL do YouTube é obrigatória')
@@ -148,7 +127,6 @@ export default function CaseForm() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { setor_empresa: '', tamanho_empresa: '' },
   })
 
   async function onSubmit(data: FormValues) {
@@ -271,23 +249,29 @@ export default function CaseForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Select
-          label="Setor"
-          placeholder="Selecione..."
-          options={SETOR_OPTIONS}
+        <Input
+          label="Setor da empresa"
+          placeholder="Ex: Saúde e Medicina"
           required
           {...register('setor_empresa')}
           error={errors.setor_empresa?.message}
         />
-        <Select
+        <Input
           label="Tamanho da empresa"
-          placeholder="Selecione..."
-          options={TAMANHO_OPTIONS}
+          placeholder="Ex: 11–50 funcionários"
           required
           {...register('tamanho_empresa')}
           error={errors.tamanho_empresa?.message}
         />
       </div>
+
+      <Input
+        label="Pequena Descrição"
+        placeholder="Ex: Redução de 40% nos custos operacionais em 3 meses"
+        required
+        {...register('pequena_descricao')}
+        error={errors.pequena_descricao?.message}
+      />
 
       <Input
         label="Link do YouTube"
