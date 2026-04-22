@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #F2F7F6;
+    color: #191F1E;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .field-input {
+    @apply w-full rounded-lg border border-adapta-200 bg-white px-3.5 py-2.5 text-sm
+           text-adapta-900 placeholder:text-adapta-400 outline-none transition-all duration-150
+           focus:border-brand-500 focus:ring-2 focus:ring-brand-400/20;
+  }
+
+  .field-input-error {
+    @apply border-red-400 focus:border-red-400 focus:ring-red-400/20;
+  }
+
+  .btn-primary {
+    @apply flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5
+           text-sm font-semibold text-white transition-all duration-150
+           hover:bg-brand-700 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  .btn-secondary {
+    @apply flex items-center justify-center gap-2 rounded-lg border border-adapta-200
+           bg-white px-5 py-2.5 text-sm font-medium text-adapta-700 transition-all duration-150
+           hover:bg-adapta-50 hover:border-adapta-300 active:scale-[0.98];
+  }
+
+  .card {
+    @apply rounded-xl border border-adapta-200 bg-white shadow-card;
+  }
+}
