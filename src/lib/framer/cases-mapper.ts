@@ -2,17 +2,17 @@ import type { CaseRow } from '@/types/cases'
 import type { Collection, FieldDataInput } from 'framer-api'
 
 export const FRAMER_CASE_FIELD_NAMES = {
-  tituloCase:       'Titulo Case',
-  nomeDaEmpresa:    'Nome da Empresa',
-  logoEmpresa:      'Logo Empresa',
-  localizacao:      'Localização',
-  setorEmpresa:     'Setor Empresa',
-  tamanhoEmpresa:   'Tamanho Empresa',
-  desafioEnfrentado:'Desafio Enfrentado',
-  resultado:        'Resultado',
-  content:          'Content',
-  urlVideoYoutube:  'URL Video Youtube',
-  thumbCase:        'Thumb Case',
+  tituloCase:        'Titulo Case',
+  nomeDaEmpresa:     'Nome da Empresa',
+  logoEmpresa:       'Logo Empresa',
+  localizacao:       'Localização',
+  setorEmpresa:      'Setor Empresa',
+  tamanhoEmpresa:    'Tamanho Empresa',
+  desafioEnfrentado: 'Desafio Enfrentado',
+  resultado:         'Resultado',
+  content:           'Content',
+  urlVideoYoutube:   'URL Video Youtube',
+  thumbCase:         'Thumb Case',
 } as const
 
 export async function buildCaseFieldMap(collection: Collection): Promise<Map<string, string>> {
@@ -46,36 +46,46 @@ export function buildFramerItemFromCase(
 ): { slug: string; fieldData: FieldDataInput } {
   const raw: Record<string, { type: string; value: unknown }> = {}
 
-  function setField(
-    key: keyof typeof FRAMER_CASE_FIELD_NAMES,
-    type: 'string' | 'formattedText',
-    value: string
-  ) {
-    const fieldName = FRAMER_CASE_FIELD_NAMES[key]
-    const fieldId = fieldMap.get(fieldName)
+  function setString(key: keyof typeof FRAMER_CASE_FIELD_NAMES, value: string) {
+    const fieldId = fieldMap.get(FRAMER_CASE_FIELD_NAMES[key])
     if (!fieldId) {
-      console.warn(`[cases-mapper] Campo "${fieldName}" não encontrado. Ignorando.`)
+      console.warn(`[cases-mapper] Campo "${FRAMER_CASE_FIELD_NAMES[key]}" não encontrado.`)
       return
     }
-    raw[fieldId] = { type, value }
+    raw[fieldId] = { type: 'string', value }
   }
 
-  setField('tituloCase',        'string', caseRow.titulo_case)
-  setField('nomeDaEmpresa',     'string', caseRow.nome_empresa)
-  setField('localizacao',       'string', caseRow.localizacao)
-  setField('setorEmpresa',      'string', caseRow.setor_empresa)
-  setField('tamanhoEmpresa',    'string', caseRow.tamanho_empresa)
-  setField('urlVideoYoutube',   'string', caseRow.youtube_url)
-  setField('desafioEnfrentado', 'formattedText', toHtml(caseRow.desafio ?? ''))
-  setField('resultado',         'formattedText', toHtml(caseRow.resultado ?? ''))
-  setField('content',           'formattedText', toHtml(caseRow.content ?? ''))
+  function setFormattedText(key: keyof typeof FRAMER_CASE_FIELD_NAMES, value: string) {
+    const fieldId = fieldMap.get(FRAMER_CASE_FIELD_NAMES[key])
+    if (!fieldId) {
+      console.warn(`[cases-mapper] Campo "${FRAMER_CASE_FIELD_NAMES[key]}" não encontrado.`)
+      return
+    }
+    raw[fieldId] = { type: 'formattedText', value }
+  }
 
-  if (caseRow.logo_url) {
-    setField('logoEmpresa', 'string', caseRow.logo_url)
+  function setImage(key: keyof typeof FRAMER_CASE_FIELD_NAMES, url: string) {
+    const fieldId = fieldMap.get(FRAMER_CASE_FIELD_NAMES[key])
+    if (!fieldId) {
+      console.warn(`[cases-mapper] Campo "${FRAMER_CASE_FIELD_NAMES[key]}" não encontrado.`)
+      return
+    }
+    raw[fieldId] = { type: 'image', value: url }
   }
-  if (caseRow.thumb_url) {
-    setField('thumbCase', 'string', caseRow.thumb_url)
-  }
+
+  setString('tituloCase',        caseRow.titulo_case)
+  setString('nomeDaEmpresa',     caseRow.nome_empresa)
+  setString('localizacao',       caseRow.localizacao)
+  setString('setorEmpresa',      caseRow.setor_empresa)
+  setString('tamanhoEmpresa',    caseRow.tamanho_empresa)
+  setString('urlVideoYoutube',   caseRow.youtube_url)
+
+  setFormattedText('desafioEnfrentado', toHtml(caseRow.desafio ?? ''))
+  setFormattedText('resultado',         toHtml(caseRow.resultado ?? ''))
+  setFormattedText('content',           toHtml(caseRow.content ?? ''))
+
+  if (caseRow.logo_url)  setImage('logoEmpresa', caseRow.logo_url)
+  if (caseRow.thumb_url) setImage('thumbCase',   caseRow.thumb_url)
 
   return {
     slug: slugify(caseRow.titulo_case),
