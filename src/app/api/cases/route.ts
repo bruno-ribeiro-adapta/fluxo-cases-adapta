@@ -46,15 +46,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Falha ao salvar o case.' }, { status: 500 })
   }
 
-  // Envia para o n8n processar (transcrição via AssemblyAI + geração de conteúdo com IA)
   const n8nUrl = process.env.N8N_CASES_WEBHOOK_URL
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${request.headers.get('host')}`
-
   if (!n8nUrl) {
-    await markCaseAsError(newCase.id, 'N8N_CASES_WEBHOOK_URL não configurada.')
     return NextResponse.json({ error: 'Configuração de webhook ausente.' }, { status: 500 })
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${request.headers.get('host')}`
+  const callbackUrl = `${baseUrl}/api/cases/callback`
+
+  // Dispara o n8n em background — ele chama callbackUrl quando terminar
   markCaseAsGenerating(newCase.id)
     .then(() =>
       fetch(n8nUrl, {
@@ -65,7 +65,10 @@ export async function POST(request: NextRequest) {
           titulo_case: newCase.titulo_case,
           nome_empresa: newCase.nome_empresa,
           youtube_url: newCase.youtube_url,
-          callback_url: `${baseUrl}/api/cases/callback`,
+          localizacao: newCase.localizacao,
+          setor_empresa: newCase.setor_empresa,
+          tamanho_empresa: newCase.tamanho_empresa,
+          callback_url: callbackUrl,
         }),
       })
     )
