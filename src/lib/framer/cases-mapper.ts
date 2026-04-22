@@ -2,7 +2,7 @@ import type { CaseRow } from '@/types/cases'
 import type { Collection, FieldDataInput } from 'framer-api'
 
 export const FRAMER_CASE_FIELD_NAMES = {
-  tituloCase:        'Titulo Case',
+  tituloCase:        'Titulo case',
   nomeDaEmpresa:     'Nome da Empresa',
   logoEmpresa:       'Logo Empresa',
   localizacao:       'Localização',
@@ -80,9 +80,9 @@ export function buildFramerItemFromCase(
   setString('tamanhoEmpresa',    caseRow.tamanho_empresa)
   setString('urlVideoYoutube',   caseRow.youtube_url)
 
-  setString('desafioEnfrentado', toHtml(caseRow.desafio ?? ''))
-  setString('resultado',         toHtml(caseRow.resultado ?? ''))
-  setString('content',           toHtml(caseRow.content ?? ''))
+  setString('desafioEnfrentado',    caseRow.desafio ?? '')
+  setFormattedText('resultado',     toHtml(caseRow.resultado ?? ''))
+  setFormattedText('content',       toHtml(caseRow.content ?? ''))
 
   if (caseRow.logo_url)  setImage('logoEmpresa', caseRow.logo_url)
   if (caseRow.thumb_url) setImage('thumbCase',   caseRow.thumb_url)
