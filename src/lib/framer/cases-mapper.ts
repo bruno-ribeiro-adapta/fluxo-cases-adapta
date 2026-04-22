@@ -24,6 +24,13 @@ export async function buildCaseFieldMap(collection: Collection): Promise<Map<str
   return map
 }
 
+function toHtml(text: string): string {
+  return text
+    .split(/\n\n+/)
+    .map((p) => `<p>${p.trim().replace(/\n/g, '<br>')}</p>`)
+    .join('')
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -41,7 +48,7 @@ export function buildFramerItemFromCase(
 
   function setField(
     key: keyof typeof FRAMER_CASE_FIELD_NAMES,
-    type: 'string',
+    type: 'string' | 'formattedText',
     value: string
   ) {
     const fieldName = FRAMER_CASE_FIELD_NAMES[key]
@@ -59,9 +66,9 @@ export function buildFramerItemFromCase(
   setField('setorEmpresa',      'string', caseRow.setor_empresa)
   setField('tamanhoEmpresa',    'string', caseRow.tamanho_empresa)
   setField('urlVideoYoutube',   'string', caseRow.youtube_url)
-  setField('desafioEnfrentado', 'string', caseRow.desafio ?? '')
-  setField('resultado',         'string', caseRow.resultado ?? '')
-  setField('content',           'string', caseRow.content ?? '')
+  setField('desafioEnfrentado', 'formattedText', toHtml(caseRow.desafio ?? ''))
+  setField('resultado',         'formattedText', toHtml(caseRow.resultado ?? ''))
+  setField('content',           'formattedText', toHtml(caseRow.content ?? ''))
 
   if (caseRow.logo_url) {
     setField('logoEmpresa', 'string', caseRow.logo_url)
