@@ -41,8 +41,8 @@ export function buildFramerItemFromCase(
 
   function setField(
     key: keyof typeof FRAMER_CASE_FIELD_NAMES,
-    type: 'string' | 'formattedText' | 'image',
-    value: unknown
+    type: 'string',
+    value: string
   ) {
     const fieldName = FRAMER_CASE_FIELD_NAMES[key]
     const fieldId = fieldMap.get(fieldName)
@@ -53,21 +53,21 @@ export function buildFramerItemFromCase(
     raw[fieldId] = { type, value }
   }
 
-  setField('tituloCase',        'string',        caseRow.titulo_case)
-  setField('nomeDaEmpresa',     'string',        caseRow.nome_empresa)
-  setField('localizacao',       'string',        caseRow.localizacao)
-  setField('setorEmpresa',      'string',        caseRow.setor_empresa)
-  setField('tamanhoEmpresa',    'string',        caseRow.tamanho_empresa)
-  setField('urlVideoYoutube',   'string',        caseRow.youtube_url)
-  setField('desafioEnfrentado', 'formattedText', caseRow.desafio ?? '')
-  setField('resultado',         'formattedText', caseRow.resultado ?? '')
-  setField('content',           'formattedText', caseRow.content ?? '')
+  setField('tituloCase',        'string', caseRow.titulo_case)
+  setField('nomeDaEmpresa',     'string', caseRow.nome_empresa)
+  setField('localizacao',       'string', caseRow.localizacao)
+  setField('setorEmpresa',      'string', caseRow.setor_empresa)
+  setField('tamanhoEmpresa',    'string', caseRow.tamanho_empresa)
+  setField('urlVideoYoutube',   'string', caseRow.youtube_url)
+  setField('desafioEnfrentado', 'string', caseRow.desafio ?? '')
+  setField('resultado',         'string', caseRow.resultado ?? '')
+  setField('content',           'string', caseRow.content ?? '')
 
   if (caseRow.logo_url) {
-    setField('logoEmpresa', 'image', { src: caseRow.logo_url })
+    setField('logoEmpresa', 'string', caseRow.logo_url)
   }
   if (caseRow.thumb_url) {
-    setField('thumbCase', 'image', { src: caseRow.thumb_url })
+    setField('thumbCase', 'string', caseRow.thumb_url)
   }
 
   return {
