@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createCase, markCaseAsTranscribing, markCaseAsError } from '@/lib/supabase/cases'
-import { startTranscription } from '@/lib/assemblyai/transcribe'
+import { createCase, markCaseAsGenerating, markCaseAsError } from '@/lib/supabase/cases'
 import { createAuthServerClient } from '@/lib/supabase/ssr'
 
 const CaseSchema = z.object({
@@ -47,15 +46,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Falha ao salvar o case.' }, { status: 500 })
   }
 
-  // Inicia transcrição em background — não bloqueia a resposta
+  // Envia para o n8n processar (transcrição via AssemblyAI + geração de conteúdo com IA)
+  const n8nUrl = process.env.N8N_CASES_WEBHOOK_URL
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${request.headers.get('host')}`
-  const assemblyWebhook = `${baseUrl}/api/assemblyai/webhook`
 
-  startTranscription(newCase.youtube_url, assemblyWebhook)
-    .then((transcriptId) => markCaseAsTranscribing(newCase.id, transcriptId))
+  if (!n8nUrl) {
+    await markCaseAsError(newCase.id, 'N8N_CASES_WEBHOOK_URL não configurada.')
+    return NextResponse.json({ error: 'Configuração de webhook ausente.' }, { status: 500 })
+  }
+
+  markCaseAsGenerating(newCase.id)
+    .then(() =>
+      fetch(n8nUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          case_id: newCase.id,
+          titulo_case: newCase.titulo_case,
+          nome_empresa: newCase.nome_empresa,
+          youtube_url: newCase.youtube_url,
+          callback_url: `${baseUrl}/api/cases/callback`,
+        }),
+      })
+    )
+    .then((res) => {
+      if (!res.ok) throw new Error(`n8n retornou ${res.status}`)
+      console.log(`[api/cases] n8n acionado para case ${newCase.id}`)
+    })
     .catch((err) => {
-      console.error(`[api/cases] Erro ao iniciar transcrição para ${newCase.id}:`, err.message)
-      markCaseAsError(newCase.id, `Falha na transcrição: ${err.message}`)
+      console.error(`[api/cases] Falha ao acionar n8n para ${newCase.id}:`, err.message)
+      markCaseAsError(newCase.id, `Falha ao acionar n8n: ${err.message}`)
     })
 
   return NextResponse.json({ success: true, case_id: newCase.id }, { status: 201 })
