@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { CaseRow } from '@/types/cases'
 
 function StatusBadge({ status }: { status: CaseRow['status'] }) {
@@ -45,6 +45,9 @@ function EditableField({
   )
 }
 
+const POLL_INTERVAL_MS = 3000
+const POLL_MAX_ATTEMPTS = 40 // 40 × 3s = 2 minutos
+
 function CaseCard({ caseRow, onPublished }: { caseRow: CaseRow; onPublished: () => void }) {
   const [desafio, setDesafio] = useState(caseRow.desafio ?? '')
   const [resultado, setResultado] = useState(caseRow.resultado ?? '')
@@ -53,6 +56,45 @@ function CaseCard({ caseRow, onPublished }: { caseRow: CaseRow; onPublished: () 
   const [publishing, setPublishing] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pollCountRef = useRef(0)
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [])
+
+  function startPolling() {
+    pollCountRef.current = 0
+    pollRef.current = setInterval(async () => {
+      pollCountRef.current += 1
+      if (pollCountRef.current > POLL_MAX_ATTEMPTS) {
+        clearInterval(pollRef.current!)
+        pollRef.current = null
+        setError('Publicação está demorando mais que o esperado. Verifique o status mais tarde.')
+        setPublishing(false)
+        return
+      }
+      try {
+        const res = await fetch(`/api/cases/status?case_id=${caseRow.id}`)
+        if (!res.ok) return
+        const { status, error_message } = await res.json()
+        if (status === 'published') {
+          clearInterval(pollRef.current!)
+          pollRef.current = null
+          setTimeout(() => onPublished(), 1500)
+        } else if (status === 'error') {
+          clearInterval(pollRef.current!)
+          pollRef.current = null
+          setError(error_message ?? 'Erro ao publicar no Framer')
+          setPublishing(false)
+        }
+      } catch {
+        // ignore transient polling errors
+      }
+    }, POLL_INTERVAL_MS)
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -80,7 +122,6 @@ function CaseCard({ caseRow, onPublished }: { caseRow: CaseRow; onPublished: () 
     setPublishing(true)
     setError(null)
 
-    // Salva primeiro, depois publica
     try {
       const saveRes = await fetch('/api/cases/review', {
         method: 'PATCH',
@@ -89,18 +130,18 @@ function CaseCard({ caseRow, onPublished }: { caseRow: CaseRow; onPublished: () 
       })
       if (!saveRes.ok) throw new Error('Falha ao salvar antes de publicar')
 
+      // A API responde imediatamente — o publish roda em background
       const pubRes = await fetch('/api/cases/publish', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ case_id: caseRow.id }),
       })
-
       if (!pubRes.ok) {
         const data = await pubRes.json()
-        throw new Error(data.error ?? 'Erro ao publicar')
+        throw new Error(data.error ?? 'Erro ao iniciar publicação')
       }
 
-      onPublished()
+      startPolling()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao publicar')
       setPublishing(false)
@@ -173,7 +214,7 @@ function CaseCard({ caseRow, onPublished }: { caseRow: CaseRow; onPublished: () 
           disabled={saving || publishing}
           className="btn-primary flex-1 disabled:opacity-50"
         >
-          {publishing ? 'Publicando...' : 'Publicar no Framer →'}
+          {publishing ? 'Publicando no Framer...' : 'Publicar no Framer →'}
         </button>
       </div>
     </div>

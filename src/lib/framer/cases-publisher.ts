@@ -64,8 +64,6 @@ export async function publishCaseById(id: string): Promise<void> {
 
   try {
     const collection = await getCollectionByName(framer, collectionName)
-    const fields = await collection.getFields()
-    fields.forEach(f => console.log(`[cases-publisher] Campo: "${f.name}" | tipo: "${f.type}"`))
     const fieldMap = await buildCaseFieldMap(collection)
 
     await processSingleCase(caseRow, collection, fieldMap)
