@@ -80,9 +80,9 @@ export function buildFramerItemFromCase(
   setString('tamanhoEmpresa',    caseRow.tamanho_empresa)
   setString('urlVideoYoutube',   caseRow.youtube_url)
 
-  setFormattedText('desafioEnfrentado', toHtml(caseRow.desafio ?? ''))
-  setFormattedText('resultado',         toHtml(caseRow.resultado ?? ''))
-  setFormattedText('content',           toHtml(caseRow.content ?? ''))
+  setString('desafioEnfrentado', caseRow.desafio ?? '')
+  setString('resultado',         caseRow.resultado ?? '')
+  setString('content',           caseRow.content ?? '')
 
   if (caseRow.logo_url)  setImage('logoEmpresa', caseRow.logo_url)
   if (caseRow.thumb_url) setImage('thumbCase',   caseRow.thumb_url)
