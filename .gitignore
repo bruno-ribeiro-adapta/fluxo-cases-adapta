@@ -32,6 +32,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# claude code — settings.local pode conter segredos de sessões anteriores
+.claude/settings.local.json
+
+# supabase — gerado pelo CLI ao linkar o projeto, contém refs e URLs de conexão
+supabase/.temp
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
